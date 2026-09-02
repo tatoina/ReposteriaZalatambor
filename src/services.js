@@ -1,6 +1,7 @@
 import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
-import { addDoc, collection, doc, onSnapshot, orderBy, query, serverTimestamp, setDoc } from 'firebase/firestore';
-import { auth, db } from './firebase';
+import { addDoc, collection, doc, onSnapshot, orderBy, query, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
+import { auth, db, storage } from './firebase';
 
 const mapSnapshot = (snapshot) => snapshot.docs.map((item) => ({ id: item.id, ...item.data() }));
 
@@ -17,6 +18,14 @@ export const subscribeOrders = (onData, onError) => onSnapshot(
 );
 
 export const createProduct = (product) => addDoc(collection(db, 'products'), { ...product, createdAt: serverTimestamp() });
+
+export const updateProduct = (productId, product) => updateDoc(doc(db, 'products', productId), product);
+
+export const uploadProductImage = async (file) => {
+  const imageRef = ref(storage, `products/${crypto.randomUUID()}-${file.name}`);
+  await uploadBytes(imageRef, file);
+  return getDownloadURL(imageRef);
+};
 
 export const createOrder = (order) => addDoc(collection(db, 'orders'), { ...order, createdAt: serverTimestamp() });
 

@@ -91,3 +91,15 @@
 .payment-method .eyebrow { margin: 0; }
 .payment-method b { font-family: 'Playfair Display'; font-size: 21px; }
 .payment-method span { color: var(--muted); font-size: 12px; }
+
+.admin-product .product-edit {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+@media (max-width: 720px) {
+  .description { display: block; font-size: 11px; }
+  .admin-product { flex-wrap: wrap; }
+  .admin-product .product-edit { margin-left: auto; }
+}

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { CakeSlice, ChevronRight, ClipboardList, CreditCard, Heart, MapPin, Minus, PackageCheck, Plus, Settings, ShoppingBag, Truck, UserRound, X, MessageCircle, LogIn } from 'lucide-react';
+import { CakeSlice, ChevronRight, ClipboardList, CreditCard, Heart, MapPin, Minus, PackageCheck, Pencil, Plus, Settings, ShoppingBag, Truck, UserRound, X, MessageCircle, LogIn } from 'lucide-react';
 import { firebaseReady } from './firebase';
-import { createOrder, createProduct, registerCustomer, saveSettings, signInAdmin, signInCustomer, subscribeOrders, subscribeProducts, subscribeSettings, watchAuth } from './services';
+import { createOrder, createProduct, registerCustomer, saveSettings, signInAdmin, signInCustomer, subscribeOrders, subscribeProducts, subscribeSettings, updateProduct, uploadProductImage, watchAuth } from './services';
 
 const eur = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
 
@@ -144,6 +144,7 @@ function CustomerAuth({ authenticate, error, close }) { const [mode, setMode] = 
 function Admin({ products, setProducts, orders }) {
   const [tab, setTab] = useState('pedidos');
   const [showProduct, setShowProduct] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
   const [settings, setSettings] = useState({ deliveryRate: 5, giftWrapRate: 2.5, minimumDelivery: 20 });
   const revenue = orders.filter((order) => order.status !== 'Pendiente').reduce((sum, order) => sum + order.total, 0);
   const pendingRevenue = orders.filter((order) => order.status === 'Pendiente').reduce((sum, order) => sum + order.total, 0);
@@ -159,18 +160,23 @@ function Admin({ products, setProducts, orders }) {
     return subscribeSettings((data) => { if (data) setSettings(data); }, () => window.alert('No se han podido cargar las tarifas de Firebase.'));
   }, []);
 
-  const addProduct = async (event) => {
+  const saveProduct = async (event) => {
     event.preventDefault();
     const form = new FormData(event.currentTarget);
+    const file = form.get('imageFile');
+    let image = editingProduct?.image || 'https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=900&q=85';
+    if (file?.size) image = firebaseReady ? await uploadProductImage(file) : URL.createObjectURL(file);
     const product = {
-      id: crypto.randomUUID(), name: form.get('name'), category: form.get('category'),
-      price: Number(form.get('price')), image: form.get('image') || 'https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=900&q=85',
+      name: form.get('name'), category: form.get('category'), price: Number(form.get('price')), image,
       allergens: form.get('allergens').split(',').map((item) => item.trim()).filter(Boolean), description: form.get('description'),
     };
     try {
-      if (firebaseReady) await createProduct(product);
-      else setProducts((current) => [...current, product]);
+      if (firebaseReady && editingProduct) await updateProduct(editingProduct.id, product);
+      else if (firebaseReady) await createProduct(product);
+      else if (editingProduct) setProducts((current) => current.map((item) => item.id === editingProduct.id ? { ...item, ...product } : item));
+      else setProducts((current) => [...current, { id: crypto.randomUUID(), ...product }]);
       setShowProduct(false);
+      setEditingProduct(null);
     } catch {
       window.alert('No se ha podido publicar el producto. Revisa las reglas de Firebase.');
     }
@@ -189,14 +195,14 @@ function Admin({ products, setProducts, orders }) {
 
   return <>
     <main className="admin">
-      <div className="admin-header"><div><p className="eyebrow">PANEL DE OBRADOR · ANDER</p><p className="admin-date">{now.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} · {now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</p></div><button className="primary" onClick={() => setShowProduct(true)}><Plus size={18} /> Nuevo producto</button></div>
+      <div className="admin-header"><div><p className="eyebrow">PANEL DE OBRADOR · ANDER</p><p className="admin-date">{now.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} · {now.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}</p></div><button className="primary" onClick={() => { setEditingProduct(null); setShowProduct(true); }}><Plus size={18} /> Nuevo producto</button></div>
       <div className="admin-tabs"><button className={tab === 'pedidos' ? 'active' : ''} onClick={() => setTab('pedidos')}>Pedidos</button><button className={tab === 'catalogo' ? 'active' : ''} onClick={() => setTab('catalogo')}>Productos</button><button className={tab === 'ingresos' ? 'active' : ''} onClick={() => setTab('ingresos')}>Ingresos</button><button className={tab === 'servicios' ? 'active' : ''} onClick={() => setTab('servicios')}>Tarifas y servicios</button></div>
       {tab === 'pedidos' && <section className="admin-panel"><div className="panel-title"><h2>Seguimiento de pedidos</h2><button className="outline">Ver todos</button></div><div className="order-table"><div className="table-head"><span>Pedido</span><span>Cliente</span><span>Entrega</span><span>Importe</span><span>Estado</span></div>{orders.map((order) => <div className="table-row" key={order.id}><span><b>{order.id}</b><small>{order.date}</small></span><span>{order.customer}</span><span>{order.delivery ? 'Domicilio' : 'Recogida'}</span><span>{eur.format(order.total)}</span><span><i className={`status ${order.status.toLowerCase()}`}>{order.status}</i></span></div>)}</div></section>}
-      {tab === 'catalogo' && <section className="admin-panel products-admin"><div className="panel-title"><h2>Productos publicados</h2><span>{products.length} referencias</span></div>{products.map((product) => <div className="admin-product" key={product.id}><img src={product.image} alt="" /><span><b>{product.name}</b><small>{product.category} · {product.allergens.join(', ')}</small></span><strong>{eur.format(product.price)}</strong></div>)}</section>}
+      {tab === 'catalogo' && <section className="admin-panel products-admin"><div className="panel-title"><h2>Productos publicados</h2><span>{products.length} referencias</span></div>{products.map((product) => <div className="admin-product" key={product.id}><img src={product.image} alt="" /><span><b>{product.name}</b><small>{product.category} · {product.allergens.join(', ')}</small></span><strong>{eur.format(product.price)}</strong><button className="outline product-edit" onClick={() => { setEditingProduct(product); setShowProduct(true); }}><Pencil size={14} /> Editar</button></div>)}</section>}
       {tab === 'ingresos' && <section className="admin-panel"><div className="panel-title"><h2>Resumen de ingresos</h2><span>Importes por estado de cobro</span></div><div className="metrics"><Metric icon={<CreditCard />} label="Ingresos cobrados" value={eur.format(revenue)} note="Pagos confirmados" /><Metric icon={<ClipboardList />} label="Ingresos pendientes" value={eur.format(pendingRevenue)} note="Pendientes de cobro" /></div></section>}
       {tab === 'servicios' && <form className="admin-panel services" onSubmit={updateSettings}><h2>Tarifas y servicios</h2><label>Entrega a domicilio <input name="deliveryRate" type="number" defaultValue={settings.deliveryRate} min="0" /> EUR</label><label>Envoltorio de regalo <input name="giftWrapRate" type="number" defaultValue={settings.giftWrapRate} min="0" step="0.5" /> EUR</label><label>Pedido mínimo para entrega <input name="minimumDelivery" type="number" defaultValue={settings.minimumDelivery} min="0" /> EUR</label><button className="primary">Guardar cambios</button></form>}
     </main>
-    {showProduct && <div className="modal-backdrop"><form className="checkout-modal product-form" onSubmit={addProduct}><div className="drawer-head"><h2>Nuevo producto</h2><button className="icon-button" type="button" onClick={() => setShowProduct(false)}><X /></button></div><div className="form-grid"><label>Nombre<input name="name" required /></label><label>Categoría<input name="category" placeholder="Tartas" required /></label><label>Precio<input name="price" type="number" min="0" step="0.5" required /></label><label>Alérgenos<input name="allergens" placeholder="Gluten, Huevo" /></label><label className="full">Foto (URL)<input name="image" type="url" /></label><label className="full">Descripción<textarea name="description" required /></label></div><button className="primary checkout-btn">Publicar producto <Plus size={18} /></button></form></div>}
+    {showProduct && <div className="modal-backdrop"><form className="checkout-modal product-form" onSubmit={saveProduct}><div className="drawer-head"><h2>{editingProduct ? 'Editar producto' : 'Nuevo producto'}</h2><button className="icon-button" type="button" onClick={() => { setShowProduct(false); setEditingProduct(null); }}><X /></button></div><div className="form-grid"><label>Nombre<input name="name" defaultValue={editingProduct?.name} required /></label><label>Categoría<input name="category" defaultValue={editingProduct?.category} placeholder="Tartas" required /></label><label>Precio<input name="price" type="number" defaultValue={editingProduct?.price} min="0" step="0.5" required /></label><label>Alérgenos<input name="allergens" defaultValue={editingProduct?.allergens.join(', ')} placeholder="Gluten, Huevo" /></label><label className="full">Foto del producto<input name="imageFile" type="file" accept="image/*" /></label><label className="full">Descripción<textarea name="description" defaultValue={editingProduct?.description} required /></label></div><button className="primary checkout-btn">{editingProduct ? 'Guardar cambios' : 'Publicar producto'} <Plus size={18} /></button></form></div>}
   </>;
 }
 function Metric({ icon, label, value, note }) { return <article className="metric"><span>{icon}</span><div><p>{label}</p><strong>{value}</strong><small>{note}</small></div></article> }
