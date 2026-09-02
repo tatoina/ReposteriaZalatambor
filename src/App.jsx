@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { CakeSlice, ChevronRight, ClipboardList, CreditCard, Heart, MapPin, Minus, PackageCheck, Pencil, Plus, Settings, ShoppingBag, Truck, UserRound, X, MessageCircle, LogIn } from 'lucide-react';
+import { CakeSlice, ChevronRight, ClipboardList, CreditCard, Heart, LogOut, MapPin, Minus, PackageCheck, Pencil, Plus, Settings, ShoppingBag, Truck, UserRound, X, MessageCircle, LogIn } from 'lucide-react';
 import { firebaseReady } from './firebase';
-import { createOrder, createProduct, registerCustomer, saveCustomerProfile, saveSettings, signInAdmin, signInCustomer, subscribeCustomerOrders, subscribeOrders, subscribeProducts, subscribeSettings, updateProduct, uploadProductImage, watchAuth } from './services';
+import { createOrder, createProduct, registerCustomer, saveCustomerProfile, saveSettings, signInAdmin, signInCustomer, signOutUser, subscribeCustomerOrders, subscribeOrders, subscribeProducts, subscribeSettings, updateProduct, uploadProductImage, watchAuth } from './services';
 
 const eur = new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' });
 
@@ -129,11 +129,20 @@ export default function App() {
       setCustomerAuthError(mode === 'register' ? 'No se ha podido crear la cuenta. Comprueba el correo y usa una contraseña de al menos 6 caracteres.' : 'Correo o contraseña incorrectos.');
     }
   };
+  const logout = async () => {
+    if (firebaseReady) await signOutUser();
+    setUser(null);
+    setOrders([]);
+    setCustomerOrders([]);
+    setView('shop');
+    setNotice('Sesión cerrada correctamente.');
+  };
 
   return <div className="app-shell">
     <header className="topbar">
       <button className="brand" onClick={() => user?.email === 'admin@admin.es' ? setView('admin') : user ? setView('account') : (setCustomerAuthPurpose('account'), setShowCustomerAuth(true))} aria-label="Mi cuenta"><img className="brand-logo" src="/logo-reposteria-zalatambor.jpg" alt="Reposteria Zalatambor" /></button>
-      <nav><button className={view === 'shop' ? 'active' : ''} onClick={() => setView('shop')}>Tienda</button>{user?.email !== 'admin@admin.es' && <button className={view === 'account' ? 'active' : ''} onClick={() => user ? setView('account') : (setCustomerAuthPurpose('account'), setShowCustomerAuth(true))}>Histórico de pedidos</button>}<button onClick={() => document.getElementById('historia')?.scrollIntoView({ behavior: 'smooth' })}>Nuestra historia</button></nav>
+      <nav><button className={view === 'shop' ? 'active' : ''} onClick={() => setView('shop')}>Tienda</button>{user?.email !== 'admin@admin.es' && <button className={view === 'account' ? 'active' : ''} onClick={() => user ? setView('account') : (setCustomerAuthPurpose('account'), setShowCustomerAuth(true))}>Histórico de pedidos</button>}<button onClick={() => document.getElementById('historia')?.scrollIntoView({ behavior: 'smooth' })}>Nuestra historia</button>{user && <button className="logout-button" onClick={logout}>Cerrar sesión</button>}</nav>
+      {user && <button className="logout-mobile" onClick={logout} aria-label="Cerrar sesión"><LogOut size={18} /></button>}
       <button className="cart-trigger" onClick={() => setShowCart(true)} aria-label="Abrir carrito"><ShoppingBag size={20} /> <span>{cart.reduce((sum, item) => sum + item.quantity, 0)}</span></button>
     </header>
 

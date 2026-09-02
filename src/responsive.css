@@ -100,6 +100,13 @@
 .delivery-option span { display: flex; flex: 1; justify-content: space-between; align-items: center; }
 .delivery-option small { color: var(--muted); }
 
+.logout-mobile { display: none; }
+.logout-button { color: var(--coral-dark); }
+
+@media (max-width: 720px) {
+  .logout-mobile { display: grid; place-items: center; width: 36px; height: 36px; margin-left: auto; background: transparent; color: var(--coral-dark); }
+}
+
 .admin-product .product-edit {
   display: inline-flex;
   align-items: center;

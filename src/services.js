@@ -1,4 +1,4 @@
-import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 import { addDoc, collection, doc, onSnapshot, orderBy, query, serverTimestamp, setDoc, updateDoc, where } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { auth, db, storage } from './firebase';
@@ -47,6 +47,8 @@ export const saveCustomerProfile = (user) => setDoc(doc(db, 'customers', user.ui
 export const signInCustomer = (email, password) => signInWithEmailAndPassword(auth, email, password);
 
 export const watchAuth = (onUser) => onAuthStateChanged(auth, onUser);
+
+export const signOutUser = () => signOut(auth);
 
 export const subscribeSettings = (onData, onError) => onSnapshot(doc(db, 'settings', 'store'), (snapshot) => onData(snapshot.data()), onError);
 
