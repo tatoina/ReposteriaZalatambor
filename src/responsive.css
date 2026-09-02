@@ -3,6 +3,10 @@
   display: none;
 }
 
+.storefront .empty-logo {
+  display: none;
+}
+
 .empty-storefront {
   min-height: calc(100vh - 76px);
   display: grid;
@@ -14,25 +18,15 @@
   display: none;
 }
 
-.empty-storefront::before {
-  content: 'Z\A REPOSTERIA\A ZALATAMBOR';
-  white-space: pre;
-  width: min(72vw, 390px);
-  aspect-ratio: 1;
-  display: grid;
-  place-content: center;
-  text-align: center;
-  color: var(--ink);
-  background: var(--cream);
-  border: 1px solid var(--line);
-  box-shadow: 14px 14px 0 var(--sage);
-  font: 500 clamp(15px, 2vw, 22px) / 1.7 'DM Mono';
-  letter-spacing: 3px;
+.empty-storefront .empty-logo {
+  display: block;
+  width: min(78vw, 540px);
 }
 
-.empty-storefront::first-letter {
-  color: var(--coral);
-  font: 600 clamp(90px, 18vw, 180px) / .8 'Playfair Display';
+.empty-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .app-shell:has(.empty-storefront) .cart-trigger,
@@ -53,9 +47,9 @@
 
 @media (max-width: 720px) {
   .empty-storefront { min-height: calc(100vh - 64px); }
-  .empty-storefront::before { width: min(76vw, 310px); box-shadow: 10px 10px 0 var(--sage); }
+  .empty-storefront .empty-logo { width: min(88vw, 390px); }
   .app-shell:has(.empty-storefront) .topbar { height: 64px; justify-content: center; }
-  .app-shell:has(.empty-storefront) .brand { transform: scale(.88); }
+  .app-shell:has(.empty-storefront) .brand { transform: none; }
   .app-shell:has(.empty-storefront) nav { display: flex; position: absolute; right: 18px; }
   .app-shell:has(.empty-storefront) nav button:last-child { font-size: 0; }
   .app-shell:has(.empty-storefront) nav button:last-child svg { width: 20px; height: 20px; }
@@ -102,4 +96,11 @@
   .description { display: block; font-size: 11px; }
   .admin-product { flex-wrap: wrap; }
   .admin-product .product-edit { margin-left: auto; }
+}
+
+.brand-logo {
+  display: block;
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
 }
