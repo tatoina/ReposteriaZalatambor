@@ -1,5 +1,5 @@
 import { createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword } from 'firebase/auth';
-import { addDoc, collection, doc, onSnapshot, orderBy, query, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, doc, onSnapshot, orderBy, query, serverTimestamp, setDoc, updateDoc, where } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { auth, db, storage } from './firebase';
 
@@ -14,6 +14,12 @@ export const subscribeProducts = (onData, onError) => onSnapshot(
 export const subscribeOrders = (onData, onError) => onSnapshot(
   query(collection(db, 'orders'), orderBy('createdAt', 'desc')),
   (snapshot) => onData(mapSnapshot(snapshot)),
+  onError,
+);
+
+export const subscribeCustomerOrders = (userId, onData, onError) => onSnapshot(
+  query(collection(db, 'orders'), where('customerId', '==', userId)),
+  (snapshot) => onData(mapSnapshot(snapshot).sort((first, second) => second.createdAt?.seconds - first.createdAt?.seconds)),
   onError,
 );
 
@@ -32,6 +38,11 @@ export const createOrder = (order) => addDoc(collection(db, 'orders'), { ...orde
 export const signInAdmin = (email, password) => signInWithEmailAndPassword(auth, email, password);
 
 export const registerCustomer = (email, password) => createUserWithEmailAndPassword(auth, email, password);
+
+export const saveCustomerProfile = (user) => setDoc(doc(db, 'customers', user.uid), {
+  email: user.email,
+  createdAt: serverTimestamp(),
+}, { merge: true });
 
 export const signInCustomer = (email, password) => signInWithEmailAndPassword(auth, email, password);
 
