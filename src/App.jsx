@@ -197,20 +197,20 @@ function Admin({ products, setProducts, orders }) {
     const form = new FormData(event.currentTarget);
     const file = form.get('imageFile');
     let image = editingProduct?.image || 'https://images.unsplash.com/photo-1551024506-0bccd828d307?auto=format&fit=crop&w=900&q=85';
-    if (file?.size) image = firebaseReady ? await uploadProductImage(file) : URL.createObjectURL(file);
-    const product = {
-      name: form.get('name'), category: form.get('category'), price: Number(form.get('price')), image,
-      allergens: form.get('allergens').split(',').map((item) => item.trim()).filter(Boolean), description: form.get('description'),
-    };
     try {
+      if (file?.size) image = firebaseReady ? await uploadProductImage(file) : URL.createObjectURL(file);
+      const product = {
+        name: form.get('name'), category: form.get('category'), price: Number(form.get('price')), image,
+        allergens: form.get('allergens').split(',').map((item) => item.trim()).filter(Boolean), description: form.get('description'),
+      };
       if (firebaseReady && editingProduct) await updateProduct(editingProduct.id, product);
       else if (firebaseReady) await createProduct(product);
       else if (editingProduct) setProducts((current) => current.map((item) => item.id === editingProduct.id ? { ...item, ...product } : item));
       else setProducts((current) => [...current, { id: crypto.randomUUID(), ...product }]);
       setShowProduct(false);
       setEditingProduct(null);
-    } catch {
-      window.alert('No se ha podido publicar el producto. Revisa las reglas de Firebase.');
+    } catch (error) {
+      window.alert(file?.size && error.code?.startsWith('storage/') ? 'No se ha podido subir la foto. Activa Firebase Storage y comprueba los permisos.' : 'No se ha podido guardar el producto. Revisa las reglas de Firebase.');
     }
   };
   const updateSettings = async (event) => {
