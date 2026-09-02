@@ -1,0 +1,87 @@
+.storefront .hero,
+.storefront .promise {
+  display: none;
+}
+
+.empty-storefront {
+  min-height: calc(100vh - 76px);
+  display: grid;
+  place-items: center;
+  background: var(--paper);
+}
+
+.empty-storefront > * {
+  display: none;
+}
+
+.empty-storefront::before {
+  content: 'Z\A REPOSTERIA\A ZALATAMBOR';
+  white-space: pre;
+  width: min(72vw, 390px);
+  aspect-ratio: 1;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  color: var(--ink);
+  background: var(--cream);
+  border: 1px solid var(--line);
+  box-shadow: 14px 14px 0 var(--sage);
+  font: 500 clamp(15px, 2vw, 22px) / 1.7 'DM Mono';
+  letter-spacing: 3px;
+}
+
+.empty-storefront::first-letter {
+  color: var(--coral);
+  font: 600 clamp(90px, 18vw, 180px) / .8 'Playfair Display';
+}
+
+.app-shell:has(.empty-storefront) nav,
+.app-shell:has(.empty-storefront) .cart-trigger,
+.app-shell:has(.empty-storefront) .whatsapp {
+  display: none;
+}
+
+@media (min-width: 721px) and (max-width: 1024px) {
+  .topbar { padding: 0 34px; }
+  .catalogue, .story, .admin { padding: 62px 34px; }
+  .product-grid { grid-template-columns: repeat(3, 1fr); gap: 24px 16px; }
+  .story { gap: 30px; }
+}
+
+@media (max-width: 720px) {
+  .empty-storefront { min-height: calc(100vh - 64px); }
+  .empty-storefront::before { width: min(76vw, 310px); box-shadow: 10px 10px 0 var(--sage); }
+  .app-shell:has(.empty-storefront) .topbar { height: 64px; justify-content: center; }
+  .app-shell:has(.empty-storefront) .brand { transform: scale(.88); }
+  .storefront .catalogue { padding-top: 42px; }
+  .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+.auth-copy {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 20px 0 -6px;
+}
+
+.text-button {
+  display: block;
+  margin: 17px auto 0;
+  color: var(--coral-dark);
+  background: transparent;
+  font-size: 12px;
+  text-decoration: underline;
+}
+
+.payment-method {
+  display: grid;
+  gap: 5px;
+  margin: 0 0 22px;
+  padding: 15px;
+  border-left: 3px solid var(--coral);
+  background: var(--paper);
+}
+
+.payment-method .eyebrow { margin: 0; }
+.payment-method b { font-family: 'Playfair Display'; font-size: 21px; }
+.payment-method span { color: var(--muted); font-size: 12px; }
