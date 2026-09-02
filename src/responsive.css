@@ -35,9 +35,12 @@
   font: 600 clamp(90px, 18vw, 180px) / .8 'Playfair Display';
 }
 
-.app-shell:has(.empty-storefront) nav,
 .app-shell:has(.empty-storefront) .cart-trigger,
 .app-shell:has(.empty-storefront) .whatsapp {
+  display: none;
+}
+
+.app-shell:has(.empty-storefront) nav button:not(:last-child) {
   display: none;
 }
 
@@ -53,6 +56,9 @@
   .empty-storefront::before { width: min(76vw, 310px); box-shadow: 10px 10px 0 var(--sage); }
   .app-shell:has(.empty-storefront) .topbar { height: 64px; justify-content: center; }
   .app-shell:has(.empty-storefront) .brand { transform: scale(.88); }
+  .app-shell:has(.empty-storefront) nav { display: flex; position: absolute; right: 18px; }
+  .app-shell:has(.empty-storefront) nav button:last-child { font-size: 0; }
+  .app-shell:has(.empty-storefront) nav button:last-child svg { width: 20px; height: 20px; }
   .storefront .catalogue { padding-top: 42px; }
   .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
