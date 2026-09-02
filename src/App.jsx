@@ -113,7 +113,7 @@ export default function App() {
   return <div className="app-shell">
     <header className="topbar">
       <button className="brand" onClick={() => products.length === 0 ? setShowLogin(true) : setView('shop')} aria-label={products.length === 0 ? 'Acceso al obrador' : 'Ir a inicio'}><img className="brand-logo" src="/logo-reposteria-zalatambor.png" alt="Reposteria Zalatambor" /></button>
-      <nav><button className={view === 'shop' ? 'active' : ''} onClick={() => setView('shop')}>Tienda</button><button onClick={() => document.getElementById('historia').scrollIntoView({ behavior: 'smooth' })}>Nuestra historia</button><button className={view === 'admin' ? 'active' : ''} onClick={() => setShowLogin(true)}><Settings size={15} /> Obrador</button></nav>
+      <nav><button className={view === 'shop' ? 'active' : ''} onClick={() => setView('shop')}>Tienda</button><button onClick={() => document.getElementById('historia').scrollIntoView({ behavior: 'smooth' })}>Nuestra historia</button></nav>
       <button className="cart-trigger" onClick={() => setShowCart(true)} aria-label="Abrir carrito"><ShoppingBag size={20} /> <span>{cart.reduce((sum, item) => sum + item.quantity, 0)}</span></button>
     </header>
 
