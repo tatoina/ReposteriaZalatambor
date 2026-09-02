@@ -86,6 +86,20 @@
 .payment-method b { font-family: 'Playfair Display'; font-size: 21px; }
 .payment-method span { color: var(--muted); font-size: 12px; }
 
+.delivery-option {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+}
+
+.delivery-option input { width: 16px; height: 16px; accent-color: var(--coral); }
+.delivery-option span { display: flex; flex: 1; justify-content: space-between; align-items: center; }
+.delivery-option small { color: var(--muted); }
+
 .admin-product .product-edit {
   display: inline-flex;
   align-items: center;
