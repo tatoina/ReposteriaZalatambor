@@ -102,6 +102,7 @@
 
 .logout-mobile { display: none; }
 .logout-button { color: var(--coral-dark); }
+.account-email { max-width: 165px; overflow: hidden; color: var(--ink); background: var(--paper); padding: 6px 8px; text-overflow: ellipsis; white-space: nowrap; font: 10px 'DM Mono'; }
 
 @media (max-width: 720px) {
   .logout-mobile { display: grid; place-items: center; width: 36px; height: 36px; margin-left: auto; background: transparent; color: var(--coral-dark); }
